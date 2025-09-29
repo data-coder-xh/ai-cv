@@ -337,7 +337,10 @@ export default {
   width: 100%;
   height: 1px;
   margin-top: 0px;
+  margin-bottom: 0px;
   background-color: var(--custom-color, var(--color-primary));
+  position: relative;
+  top: -10px; /* 紧贴标题底部 */
 }
 
 ::v-deep .session-title {
