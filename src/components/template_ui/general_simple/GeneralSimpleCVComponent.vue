@@ -350,6 +350,9 @@ export default {
   color: #fff;
   margin-top: 0px;
   margin-bottom: var(--session-title-margin, 10px);
+  /* 梯形标签卡效果 - 上短下长，右边斜切 */
+  clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 100%, 0 100%);
+  padding-right: 20px;
 }
 
 ::v-deep .title-and-time {
