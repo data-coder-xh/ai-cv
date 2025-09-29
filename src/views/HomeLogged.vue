@@ -16,7 +16,7 @@
             <span>导入简历</span>
           </button>
 
-          <button class="btn btn-white" @click="goToInterview">
+          <button class="btn btn-white" disabled >
             <img src="https://aicv-1307107697.cos.ap-guangzhou.myqcloud.com/asserts/icon/model.png" alt="icon"
               class="btn-icon btn-icon-model" />
             <span>面试题合集</span>
