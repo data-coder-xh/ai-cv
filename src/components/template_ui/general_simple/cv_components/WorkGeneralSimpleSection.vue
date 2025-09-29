@@ -27,12 +27,12 @@
       </div>
       <div class="title-and-time">
         <h3 v-if="work.title" class="item-title">{{ work.title }}</h3>
-        <h3 v-else class="item-title">（您的职位）</h3>
+        <h3 v-else class="item-title">您的公司名称</h3>
         <p class="item-time">{{ work.content.from_time }} - {{ work.content.to_time }}</p>
       </div>
       <div class="sub-title-and-city">
         <div v-if="work.content.sub_title">{{ work.content.sub_title }}</div>
-        <div v-else>（您的职位）</div>
+        <div v-else>您的职位</div>
         <div>{{ work.content.city }}</div>
       </div>
       <div class="item-content-item" v-for="(point, i2) in work.content.content" :key="i2">
@@ -44,7 +44,7 @@
       </div>
 
       <div class="item-content-item" v-if="work.content.content.length === 0" style="opacity: 0.5;">
-        (这里是描述，您可以在这里详细描述您的工作经历，包括您的职责、使用的技术以及取得的成果等。)
+        这里是描述，您可以在这里详细描述您的工作经历，包括您的职责、使用的技术以及取得的成果等。
       </div>
       <div class="highlight" v-if="work.title === highlightTitle && work.title != ''">
         <div class="highlight-left"></div>

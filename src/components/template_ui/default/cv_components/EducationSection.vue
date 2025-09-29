@@ -22,12 +22,12 @@
       </div>
       <div class="title-and-time">
         <h3  v-if="edu.title" class="item-title">{{ edu.title }}</h3>
-        <h3  v-else class="item-title">（您的教育经历）</h3>
+        <h3  v-else class="item-title">您的大学名称</h3>
         <p class="item-time">{{ edu.content.from_time }} - {{ edu.content.to_time }}</p>
       </div>
       <div class="sub-title-and-city">
         <div v-if="edu.content.major && edu.content.degree">{{ edu.content.major }} {{ edu.content.degree }}</div>
-        <div v-else>（您的教育经历）</div>
+        <div v-else>您的专业和学历</div>
         <div>{{ edu.content.city }}</div>
       </div>
 

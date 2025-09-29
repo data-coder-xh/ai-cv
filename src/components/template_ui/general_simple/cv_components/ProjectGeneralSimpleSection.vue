@@ -30,7 +30,7 @@
 
       <div class="title-and-time">
         <h3 v-if="project.title" class="item-title">{{ project.title }}</h3>
-        <h3 v-else class="item-title">（您的项目经历）</h3>
+        <h3 v-else class="item-title">您的项目名称</h3>
         <p class="item-time">{{ project.content.from_time }} - {{ project.content.to_time }}</p>
       </div>
       <div class="item-content-item" v-for="(point, i2) in project.content.content" :key="i2">
@@ -41,7 +41,7 @@
         </div>
       </div>
       <div class="item-content-item" v-if="project.content.content.length === 0" style="opacity: 0.5;">
-        (这里是描述，您可以在这里详细描述您的项目经历，包括项目的背景、您的角色、使用的技术以及取得的成果等。)
+        这里是描述，您可以在这里详细描述您的项目经历，包括项目的背景、您的角色、使用的技术以及取得的成果等。
       </div>
       <div class="highlight" v-if="project.title === highlightTitle && project.title != ''">
         <div class="highlight-left"></div>
