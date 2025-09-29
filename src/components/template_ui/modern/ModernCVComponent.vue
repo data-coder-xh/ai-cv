@@ -150,7 +150,7 @@
       },
       totalTitleAndItemCount()
       {
-        let count=2;
+        let count=0;
         if (this.educationList && this.educationList.length > 0) {
           count+=this.educationList.length+1;
         }
@@ -162,7 +162,7 @@
         }
 
         if (this.personalSummary && this.personalSummary.length > 0) {
-          count+=2;
+          count+=1;
         }
         return count;
       },
@@ -354,12 +354,12 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-bottom: var(--session-title-margin,10px); /* 标题与内容距离 */
+  margin-bottom: var(--session-title-margin,5px); /* 标题与内容距离 */
 }
 
 /* 经历条目 */
 ::v-deep(.entry) {
-  margin-bottom: var(--session-item-margin,10px); /* 间距由条目撑开 */
+  margin-bottom: var(--session-item-margin,5px); /* 间距由条目撑开 */
   position:relative;
 }
 

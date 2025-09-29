@@ -40,11 +40,11 @@
             </div>
 
             <div class="login-with-area">
-                <div class="login-with-button" @click="signInWithGoogle">
+                <!--<div class="login-with-button" @click="signInWithGoogle">
                     <img class="login-with-button-icon" src="https://cdn-teams-slug.flaticon.com/google.jpg"
                         alt="google" />
                     <div class="login-with-button-text">继续使用 Google 登录</div>
-                </div>
+                </div>-->
                 <!-- <div class="login-with-button" @click="signInWithWeChat">
                     <img class="login-with-button-icon" src="https://img.icons8.com/color/48/000000/weixing.png" alt="wechat" />
                     <div class="login-with-button-text">继续使用 微信 登录</div>
