@@ -37,6 +37,7 @@
   import WorkSectionModern from '@/components/template_ui/modern/cv_components/WorkSectionModern.vue';
   import ProjectSectionModern from '@/components/template_ui/modern/cv_components/ProjectSectionModern.vue';
   import SummarySectionModern from '@/components/template_ui/modern/cv_components/SummarySectionModern.vue';
+  import OtherSectionModern from '@/components/template_ui/modern/cv_components/OtherSectionModern.vue';
   import metadataInstance from '@/models/metadata_model.js';
   import { useToast } from 'vue-toastification'
   export default {
@@ -48,6 +49,7 @@
       WorkSectionModern,
       ProjectSectionModern,
       SummarySectionModern,
+      OtherSectionModern,
     },
     props: {
       highlightTitle: {
@@ -148,6 +150,13 @@
         }
         return metadataInstance.data.personalSummary;
       },
+      otherModule() {
+        // 如果是预览模式且有预览数据，则使用预览数据
+        if (this.isPreview && this.previewData.otherModule) {
+          return this.previewData.otherModule;
+        }
+        return metadataInstance.data.otherModule || {};
+      },
       totalTitleAndItemCount()
       {
         let count=0;
@@ -164,6 +173,18 @@
         if (this.personalSummary && this.personalSummary.length > 0) {
           count+=1;
         }
+        
+        // 添加其他模块的计数
+        const hasOtherContent = this.otherModule && (
+          this.otherModule.skills || 
+          this.otherModule.certificates || 
+          this.otherModule.languages || 
+          this.otherModule.interests
+        );
+        if (hasOtherContent) {
+          count += 2;
+        }
+        
         return count;
       },
       modulesData() {
@@ -237,6 +258,25 @@
             }
           })
         }
+        
+        // 添加其他模块
+        const hasOtherContent = this.otherModule && (
+          this.otherModule.skills || 
+          this.otherModule.certificates || 
+          this.otherModule.languages || 
+          this.otherModule.interests
+        );
+        
+        if (hasOtherContent) {
+          modules.push({
+            component: OtherSectionModern,
+            props: {
+              otherModule: this.otherModule,
+              color: this.color
+            }
+          })
+        }
+        
         return modules
       }
     },

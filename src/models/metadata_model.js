@@ -16,6 +16,7 @@ class MetadataModel {
       projectExperience: [],
       personalInfo: {},
       personalSummary: '',
+      otherModule:{},
       isFetching: false,
     };
 
@@ -106,6 +107,13 @@ class MetadataModel {
         - meta_data 中的 jobTitle 是用户的目标岗位。
         - meta_data 中的 jobDescription 是用户的目标岗位描述。
         `;
+      case 'otherModule':
+        return `
+        - meta_data 中的 skills 是用户的技能。
+        - meta_data 中的 certificates 是用户的证书/执照。
+        - meta_data 中的 languages 是用户的语言能力。
+        - meta_data 中的 interests 是用户的兴趣爱好。
+        `;
 
       default:
         return '';
@@ -161,6 +169,15 @@ class MetadataModel {
 
       case 'personalSummary':
         return '(个人总结这部分内容是一段字符串)'
+
+      case 'otherModule':
+        return JSON.stringify({
+          "skills": "(个人技能)",
+          "certificates": "(证书/执照)",
+          "languages": "(语言)",
+          "interests": "(兴趣爱好)",
+          "content": []
+        });
       default:
         return '{}';
     }
@@ -185,7 +202,8 @@ class MetadataModel {
         return this.data.personalInfo;
       case 'personalSummary':
         return this.data.personalSummary;
-
+      case 'otherModule':
+        return this.data.otherModule;
       default:
         return null;
     }
@@ -207,6 +225,13 @@ class MetadataModel {
       case 'projectExperience': {
         this.data.projectExperience = this.data.projectExperience.filter(item => item.title !== title);
         console.log(`删除项目经历: ${title}`);
+        break;
+      }
+      case 'otherModule': {
+        // otherModule 是对象，不是数组，所以不需要删除特定标题的内容
+        // 如果需要重置，可以直接设置为空对象
+        this.data.otherModule = {};
+        console.log(`重置其他模块数据`);
         break;
       }
 
@@ -294,6 +319,11 @@ class MetadataModel {
         this.data.personalSummary = content;
         console.log(`更新个人总结`);
         break;
+      case 'otherModule': {
+        this.data.otherModule = content;
+        console.log(`更新其他经历`);
+        break;
+      }
       default:
         break;
     }
@@ -322,6 +352,7 @@ class MetadataModel {
     this.data.projectExperience = [];
     this.data.personalInfo = {};
     this.data.personalSummary = '';
+    this.data.otherModule = {};
     console.log("Metadata cleared and state reset to default.");
   }
 }

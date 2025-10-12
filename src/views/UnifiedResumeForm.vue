@@ -498,7 +498,8 @@
           personalInfo: basicInfo,
           education: mappedEducationList,
           workExperience: mappedWorkList,
-          projectExperience: mappedProjectList
+          projectExperience: mappedProjectList,
+          otherModule: others
         }"
       />
     </div>
