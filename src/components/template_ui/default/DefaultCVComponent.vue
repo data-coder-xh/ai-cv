@@ -37,6 +37,7 @@ import EducationSection from '@/components/template_ui/default/cv_components/Edu
 import WorkSection from '@/components/template_ui/default/cv_components/WorkSection.vue';
 import ProjectSection from '@/components/template_ui/default/cv_components/ProjectSection.vue';
 import SummarySection from '@/components/template_ui/default/cv_components/SummarySection.vue';
+import OtherSection from '@/components/template_ui/default/cv_components/OtherSection.vue';
 import metadataInstance from '@/models/metadata_model.js';
 import { useToast } from 'vue-toastification'
 export default {
@@ -48,6 +49,7 @@ export default {
     WorkSection,
     ProjectSection,
     SummarySection,
+    OtherSection,
   },
   props: {
     highlightTitle: {
@@ -137,6 +139,13 @@ export default {
       }
       return metadataInstance.data.personalSummary;
     },
+    otherModule() {
+      // 如果是预览模式且有预览数据，则使用预览数据
+      if (this.isPreview && this.previewData.otherModule) {
+        return this.previewData.otherModule;
+      }
+      return metadataInstance.data.otherModule;
+    },
     totalTitleAndItemCount()
     {
       let count=2;
@@ -150,6 +159,9 @@ export default {
         count+=this.projectList.length+1;
       }
       if (this.personalSummary && this.personalSummary.length > 0) {
+        count+=2;
+      }
+      if (this.otherModule && Object.keys(this.otherModule).some(key => this.otherModule[key] && this.otherModule[key].trim())) {
         count+=2;
       }
       return count;
@@ -216,6 +228,16 @@ export default {
           component: SummarySection,
           props: {
             personalSummary: this.personalSummary,
+            enableHover: !this.isPreview,
+            color: this.color
+          }
+        })
+      }
+      if (this.otherModule && Object.keys(this.otherModule).some(key => this.otherModule[key] && this.otherModule[key].trim())) {
+        modules.push({
+          component: OtherSection,
+          props: {
+            otherModule: this.otherModule,
             enableHover: !this.isPreview,
             color: this.color
           }
