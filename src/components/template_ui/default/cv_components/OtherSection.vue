@@ -12,14 +12,7 @@
       </span>
     </h2>
     
-    <div class="session-item" 
-         @mouseenter="handleMouseEnter('otherModule')" @mouseleave="handleMouseLeave" 
-         :class="{ 'is-hovered': hoverIndex === 'otherModule' }">
-      <div class="item-hover-overlay" v-if="hoverIndex === 'otherModule'">
-        <div class="overlay-buttons">
-          <button class="overlay-button" @click.stop="onEditClick('otherModule', '其他')">编辑</button>
-        </div>
-      </div>
+    <div class="session-item">
       
       <!-- 技能部分 -->
       <div v-if="otherModule.skills && otherModule.skills.trim()" class="item-content-item">

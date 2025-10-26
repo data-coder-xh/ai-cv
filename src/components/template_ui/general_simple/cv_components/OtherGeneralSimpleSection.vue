@@ -15,12 +15,7 @@
     </div>
     <div class="session-title-underline"></div>
 
-    <div class="session-item" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave" :class="{ 'is-hovered': isHovered }">
-      <div class="item-hover-overlay" v-if="isHovered">
-        <div class="overlay-buttons">
-          <button class="overlay-button" @click.stop="onEditClick('otherModule', '其他')">编辑</button>
-        </div>
-      </div>
+    <div class="session-item">
       
       <!-- 所有内容用一个session-item容器包裹 -->
       <div class="item-content">
