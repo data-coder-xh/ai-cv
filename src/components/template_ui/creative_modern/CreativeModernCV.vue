@@ -49,6 +49,7 @@ import CreativeModernEducationSection from '@/components/template_ui/creative_mo
 import CreativeModernWorkSection from '@/components/template_ui/creative_modern/cv_components/CreativeModernComponentWorkSection.vue';
 import CreativeModernProjectSection from '@/components/template_ui/creative_modern/cv_components/CreativeModernProjectSection.vue';
 import CreativeModernSummarySection from '@/components/template_ui/creative_modern/cv_components/CreativeModernSummarySection.vue';
+import CreativeModernOtherSection from '@/components/template_ui/creative_modern/cv_components/CreativeModernOtherSection.vue';
 import metadataInstance from '@/models/metadata_model.js';
 import { useToast } from 'vue-toastification';
 export default {
@@ -60,6 +61,7 @@ export default {
     CreativeModernWorkSection,
     CreativeModernProjectSection,
     CreativeModernSummarySection,
+    CreativeModernOtherSection,
   },
   data() {
     return {
@@ -175,6 +177,13 @@ export default {
       }
       return metadataInstance.data.personalSummary;
     },
+    otherModule() {
+      // 如果是预览模式且有预览数据，则使用预览数据
+      if (this.isPreview && this.previewData.otherModule) {
+        return this.previewData.otherModule;
+      }
+      return metadataInstance.data.otherModule || {};
+    },
     totalTitleAndItemCount(){
       let count=2;
       if (this.educationList && this.educationList.length > 0) {
@@ -188,6 +197,16 @@ export default {
       }
       if (this.personalSummary && this.personalSummary.length > 0) {
         count+=2;
+      }
+      // 添加其他模块的计数
+      const hasOtherContent = this.otherModule && (
+        this.otherModule.skills || 
+        this.otherModule.certificates || 
+        this.otherModule.languages || 
+        this.otherModule.interests
+      );
+      if (hasOtherContent) {
+        count += 2;
       }
       return count;
     },
@@ -258,6 +277,25 @@ export default {
           }
         })
       }
+      
+      // 添加其他模块
+      const hasOtherContent = this.otherModule && (
+        this.otherModule.skills || 
+        this.otherModule.certificates || 
+        this.otherModule.languages || 
+        this.otherModule.interests
+      );
+      
+      if (hasOtherContent) {
+        modules.push({
+          component: CreativeModernOtherSection,
+          props: {
+            otherModule: this.otherModule,
+            color: this.color
+          }
+        })
+      }
+      
       return modules
     }
   },

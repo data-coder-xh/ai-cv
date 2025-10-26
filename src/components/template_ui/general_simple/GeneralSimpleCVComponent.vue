@@ -41,18 +41,20 @@ import EducationGeneralSimpleSection from '@/components/template_ui/general_simp
 import WorkGeneralSimpleSection from '@/components/template_ui/general_simple/cv_components/WorkGeneralSimpleSection.vue';
 import ProjectGeneralSimpleSection from '@/components/template_ui/general_simple/cv_components/ProjectGeneralSimpleSection.vue';
 import SummaryGeneralSimpleSection from '@/components/template_ui/general_simple/cv_components/SummaryGeneralSimpleSection.vue';
+import OtherGeneralSimpleSection from '@/components/template_ui/general_simple/cv_components/OtherGeneralSimpleSection.vue';
 import metadataInstance from '@/models/metadata_model.js';
 import { useToast } from 'vue-toastification';
 export default {
     name: "GeneralSimpleCVComponent",
     components: {
-        BaseCVComponent,
-        PersonalGeneralSimpleInfo,
-        EducationGeneralSimpleSection,
-        WorkGeneralSimpleSection,
-        ProjectGeneralSimpleSection,
-        SummaryGeneralSimpleSection,
-    },
+    BaseCVComponent,
+    PersonalGeneralSimpleInfo,
+    EducationGeneralSimpleSection,
+    WorkGeneralSimpleSection,
+    ProjectGeneralSimpleSection,
+    SummaryGeneralSimpleSection,
+    OtherGeneralSimpleSection,
+  },
     props: {
         highlightTitle: {
             type: String,
@@ -134,28 +136,45 @@ export default {
             return metadataInstance.data.projectExperience;
         },
         personalSummary() {
-            // 如果是预览模式且有预览数据，则使用预览数据
-            if (this.isPreview ) {
-                return '';
-            }
-            return metadataInstance.data.personalSummary;
-        },
+        // 如果是预览模式且有预览数据，则使用预览数据
+        if (this.isPreview ) {
+            return '';
+        }
+        return metadataInstance.data.personalSummary;
+    },
+    otherModule() {
+        // 如果是预览模式且有预览数据，则使用预览数据
+        if (this.isPreview && this.previewData.otherModule) {
+            return this.previewData.otherModule;
+        }
+        return metadataInstance.data.otherModule || {};
+    },
         totalTitleAndItemCount(){
-            let count=2;
-            if (this.educationList && this.educationList.length > 0) {
-                count+=this.educationList.length+1;
-            }
-            if (this.workList && this.workList.length > 0) {
-                count+=this.workList.length+1;
-            }
-            if (this.projectList && this.projectList.length > 0) {
-                count+=this.projectList.length+1;
-            }
-            if (this.personalSummary && this.personalSummary.length > 0) {
-                count+=2;
-            }
-            return count;
-        },
+        let count=2;
+        if (this.educationList && this.educationList.length > 0) {
+            count+=this.educationList.length+1;
+        }
+        if (this.workList && this.workList.length > 0) {
+            count+=this.workList.length+1;
+        }
+        if (this.projectList && this.projectList.length > 0) {
+            count+=this.projectList.length+1;
+        }
+        if (this.personalSummary && this.personalSummary.length > 0) {
+            count+=2;
+        }
+        // 添加其他模块的计数
+        const hasOtherContent = this.otherModule && (
+            this.otherModule.skills || 
+            this.otherModule.certificates || 
+            this.otherModule.languages || 
+            this.otherModule.interests
+        );
+        if (hasOtherContent) {
+            count += 2;
+        }
+        return count;
+    },
         modulesData() {
             const modules = []
             modules.push({
@@ -223,6 +242,33 @@ export default {
                     }
                 })
             }
+            
+            // 添加其他模块
+            const hasOtherContent = this.otherModule && (
+                this.otherModule.skills || 
+                this.otherModule.certificates || 
+                this.otherModule.languages || 
+                this.otherModule.interests
+            );
+            
+            if (hasOtherContent) {
+                modules.push({
+                    component: OtherGeneralSimpleSection,
+                    props: {
+                        otherModule: this.otherModule,
+                        highlightTitle: this.highlightTitle,
+                        enableHover: !this.isPreview,
+                        color: this.color
+                    },
+                    listeners: {
+                        'selected-module-changed': this.handleSelectedModuleChanged,
+                        'edit-title': this.handleEdit,
+                        'delete-title': this.handleDelete,
+                        'add-title': this.handleAddTitle
+                    }
+                })
+            }
+            
             return modules
         }
     },
