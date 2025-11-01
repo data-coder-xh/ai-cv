@@ -322,10 +322,24 @@ export default {
     async handleDelete(type, title) {
       const { isConfirmed } = await this.$swal({
         icon: 'warning',
-        title: '确定要删除这个模块吗？',
+        iconColor: '#d97757',
+        title: '<span style="font-size: 24px; font-weight: 600; color: #333;">删除确认</span>',
+        html: '<p style="font-size: 16px; color: #666; margin: 16px 0;">确定要删除这个模块吗？<br/>此操作无法撤销。</p>',
         showCancelButton: true,
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: '<span style="font-weight: 500;">确定删除</span>',
+        cancelButtonText: '<span style="font-weight: 500;">取消</span>',
+        confirmButtonColor: '#d97757',
+        cancelButtonColor: '#999',
+        buttonsStyling: true,
+        reverseButtons: true,
+        focusConfirm: false,
+        customClass: {
+          popup: 'custom-delete-popup',
+          title: 'custom-delete-title',
+          htmlContainer: 'custom-delete-html',
+          confirmButton: 'custom-delete-confirm-btn',
+          cancelButton: 'custom-delete-cancel-btn',
+        },
       })
       if (!isConfirmed) return
 
@@ -456,5 +470,64 @@ export default {
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
+}
+</style>
+
+<style>
+/* 删除确认弹窗自定义样式 */
+.custom-delete-popup {
+  border-radius: 16px !important;
+  padding: 32px 24px 24px 24px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+.custom-delete-title {
+  margin-bottom: 8px !important;
+}
+
+.custom-delete-html {
+  margin: 16px 0 !important;
+  line-height: 1.6 !important;
+}
+
+.custom-delete-confirm-btn {
+  background-color: #d97757 !important;
+  border-radius: 8px !important;
+  padding: 10px 24px !important;
+  font-size: 15px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(217, 119, 87, 0.3) !important;
+}
+
+.custom-delete-confirm-btn:hover {
+  background-color: rgb(168, 100, 58) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 87, 0.4) !important;
+}
+
+.custom-delete-cancel-btn {
+  background-color: #f5f5f5 !important;
+  color: #666 !important;
+  border-radius: 8px !important;
+  padding: 10px 24px !important;
+  font-size: 15px !important;
+  transition: all 0.3s ease !important;
+  border: 1px solid #e0e0e0 !important;
+}
+
+.custom-delete-cancel-btn:hover {
+  background-color: #e8e8e8 !important;
+  border-color: #d0d0d0 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 警告图标颜色 */
+.custom-delete-popup .swal2-icon.swal2-warning {
+  border-color: #d97757 !important;
+  color: #d97757 !important;
+}
+
+.custom-delete-popup .swal2-icon.swal2-warning .swal2-icon-content {
+  color: #d97757 !important;
 }
 </style>
