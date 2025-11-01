@@ -8,14 +8,16 @@
                     :class="{ active: activeTab === 'wechat' }"
                     @click="activeTab = 'wechat'"
                 >
-                    微信登录
+                    <i class="fab fa-weixin"></i>
+                    <span>微信登录</span>
                 </div>
                 <div
                     class="tab"
                     :class="{ active: activeTab === 'email' }"
                     @click="activeTab = 'email'"
                 >
-                    邮箱登录
+                    <i class="fas fa-envelope"></i>
+                    <span>邮箱登录</span>
                 </div>
             </div>
             <div class="auth-tab-content">
@@ -28,17 +30,6 @@
                 </div>
                 <div id="wx-qrcode" class="wechat-qrcode-container" v-show="activeTab === 'wechat'"></div>
             </div>
-            <div class="question-area">
-                <div class="question-text">还没有账户?</div>
-                <div class="question-link">注册</div>
-            </div>
-
-            <div class="spilter-line">
-                <div class="spilter-line-left" />
-                <div class="spilter-line-text">或</div>
-                <div class="spilter-line-right" />
-            </div>
-
             <div class="login-with-area">
                 <!--<div class="login-with-button" @click="signInWithGoogle">
                     <img class="login-with-button-icon" src="https://cdn-teams-slug.flaticon.com/google.jpg"
@@ -228,6 +219,18 @@ export default {
     color: #666;
     cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.tab i {
+    font-size: 16px;
+}
+
+.tab span {
+    line-height: 1;
 }
 
 .tab.active {
@@ -299,33 +302,6 @@ export default {
     margin-left: 12px;
     color: var(--color-primary);
     cursor: pointer;
-}
-
-.spilter-line {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-}
-
-.spilter-line-left,
-.spilter-line-right {
-    width: 100px;
-    height: 1px;
-    background-color: rgba(0, 0, 0, 0.3);
-}
-
-.spilter-line-left {
-    margin-right: 10px;
-}
-
-.spilter-line-right {
-    margin-left: 10px;
-}
-
-.spilter-line-text {
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.3);
 }
 
 .login-with-area {
