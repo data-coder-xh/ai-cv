@@ -20,7 +20,7 @@
       <!-- 所有内容用一个session-item容器包裹 -->
       <div class="item-content">
         <!-- 技能部分 -->
-        <div v-if="otherModule.skills && otherModule.skills.trim()" class="item-content-item">
+        <div v-if="otherModule.skills && typeof otherModule.skills === 'string' && otherModule.skills.trim()" class="item-content-item">
           <div class="bullet-point-prefix">·</div>
           <div class="bullet-point-content">
             <span class="bullet-point">技能:</span>
@@ -29,7 +29,7 @@
         </div>
         
         <!-- 证书/执照部分 -->
-        <div v-if="otherModule.certificates && otherModule.certificates.trim()" class="item-content-item">
+        <div v-if="otherModule.certificates && typeof otherModule.certificates === 'string' && otherModule.certificates.trim()" class="item-content-item">
           <div class="bullet-point-prefix">·</div>
           <div class="bullet-point-content">
             <span class="bullet-point">证书/执照:</span>
@@ -38,7 +38,7 @@
         </div>
         
         <!-- 语言部分 -->
-        <div v-if="otherModule.languages && otherModule.languages.trim()" class="item-content-item">
+        <div v-if="otherModule.languages && typeof otherModule.languages === 'string' && otherModule.languages.trim()" class="item-content-item">
           <div class="bullet-point-prefix">·</div>
           <div class="bullet-point-content">
             <span class="bullet-point">语言:</span>
@@ -47,7 +47,7 @@
         </div>
         
         <!-- 兴趣爱好部分 -->
-        <div v-if="otherModule.interests && otherModule.interests.trim()" class="item-content-item">
+        <div v-if="otherModule.interests && typeof otherModule.interests === 'string' && otherModule.interests.trim()" class="item-content-item">
           <div class="bullet-point-prefix">·</div>
           <div class="bullet-point-content">
             <span class="bullet-point">兴趣爱好:</span>

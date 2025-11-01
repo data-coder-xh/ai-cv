@@ -161,8 +161,15 @@ export default {
       if (this.personalSummary && this.personalSummary.length > 0) {
         count+=2;
       }
-      if (this.otherModule && Object.keys(this.otherModule).some(key => this.otherModule[key] && this.otherModule[key].trim())) {
-        count+=2;
+      // 添加其他模块的计数
+      const hasOtherContent = this.otherModule && (
+        this.otherModule.skills || 
+        this.otherModule.certificates || 
+        this.otherModule.languages || 
+        this.otherModule.interests
+      );
+      if (hasOtherContent) {
+        count += 2;
       }
       return count;
     },
@@ -233,7 +240,15 @@ export default {
           }
         })
       }
-      if (this.otherModule && Object.keys(this.otherModule).some(key => this.otherModule[key] && this.otherModule[key].trim())) {
+      // 添加其他模块 - 使用安全的检查方式，只检查特定字段且确保是字符串
+      const hasOtherContent = this.otherModule && (
+        (this.otherModule.skills && typeof this.otherModule.skills === 'string' && this.otherModule.skills.trim()) ||
+        (this.otherModule.certificates && typeof this.otherModule.certificates === 'string' && this.otherModule.certificates.trim()) ||
+        (this.otherModule.languages && typeof this.otherModule.languages === 'string' && this.otherModule.languages.trim()) ||
+        (this.otherModule.interests && typeof this.otherModule.interests === 'string' && this.otherModule.interests.trim())
+      );
+      
+      if (hasOtherContent) {
         modules.push({
           component: OtherSection,
           props: {

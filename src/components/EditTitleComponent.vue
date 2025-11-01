@@ -15,10 +15,10 @@
                     v-model:modelValue="localContent.content.title" />
 
                 <div class="form-line">
-                    <AppleStyleInput id="edu-from" labelText="开始时间" inputType="text" :required="true"
-                        v-model:modelValue="localContent.content.from_time" />
-                    <AppleStyleInput id="edu-to" labelText="结束时间" inputType="text" :required="true"
-                        v-model:modelValue="localContent.content.to_time" />
+                    <AppleStyleDatePicker id="edu-from" labelText="开始时间" :required="true"
+                        v-model="localContent.content.from_time" />
+                    <AppleStyleDatePicker id="edu-to" labelText="结束时间" :required="true"
+                        v-model="localContent.content.to_time" />
                 </div>
 
                 <AppleStyleInput id="edu-major" labelText="专业" inputType="text" :required="true"
@@ -49,10 +49,10 @@
                     v-model:modelValue="localContent.content.title" />
 
                 <div class="form-line">
-                    <AppleStyleInput id="work-from" labelText="开始时间" inputType="text" :required="true"
-                        v-model:modelValue="localContent.content.from_time" />
-                    <AppleStyleInput id="work-to" labelText="结束时间" inputType="text" :required="true"
-                        v-model:modelValue="localContent.content.to_time" />
+                    <AppleStyleDatePicker id="work-from" labelText="开始时间" :required="true"
+                        v-model="localContent.content.from_time" />
+                    <AppleStyleDatePicker id="work-to" labelText="结束时间" :required="true"
+                        v-model="localContent.content.to_time" />
                 </div>
 
                 <div class="form-line">
@@ -89,10 +89,10 @@
                     v-model:modelValue="localContent.content.title" />
 
                 <div class="form-line">
-                    <AppleStyleInput id="project-from" labelText="开始时间" inputType="text" :required="true"
-                        v-model:modelValue="localContent.content.from_time" />
-                    <AppleStyleInput id="project-to" labelText="结束时间" inputType="text" :required="true"
-                        v-model:modelValue="localContent.content.to_time" />
+                    <AppleStyleDatePicker id="project-from" labelText="开始时间" :required="true"
+                        v-model="localContent.content.from_time" />
+                    <AppleStyleDatePicker id="project-to" labelText="结束时间" :required="true"
+                        v-model="localContent.content.to_time" />
                 </div>
 
                 <AppleStyleInput id="project-role" labelText="职位/角色" inputType="text" :required="true"
@@ -133,6 +133,7 @@
 
 <script>
 import AppleStyleInput from '@/components/basic_ui/AppleStyleInput.vue'; // 确保路径正确
+import AppleStyleDatePicker from '@/components/basic_ui/AppleStyleDatePicker.vue';
 import metadataInstance from '@/models/metadata_model.js';
 import ChatgptModel from '@/models/chatgpt_model.js';
 import ClickToEdit from '@/components/basic_ui/ClickToEdit.vue';
@@ -142,6 +143,7 @@ const chatgptInstance = ChatgptModel.getInstance();
 export default {
     components: {
         AppleStyleInput,
+        AppleStyleDatePicker,
         ClickToEdit
     },
     name: 'EditTitleComponent',
@@ -237,8 +239,8 @@ export default {
                             content: []
                         }
                     }
-
-            } else {
+                }
+            }else {
                 // 深拷贝 metadataInstance 原始数据，赋值给 localContent
                 // 注意：ResumeForm.vue 中 setContentForType 时，把真正要存的结构都放在 content 里了
                 // 比如： { from_time: '', to_time: '', content: [] } 等等
@@ -259,7 +261,6 @@ export default {
                     return { ...point, combined: `${prefix}${suffix}`.trim() };
                 });
             }
-        }
     },
         // 新增 Bullet Point：各类型共用
         addBulletPoint() {

@@ -7,7 +7,7 @@
       <div class="entry" :class="{ highlighttitle:  enableHover &&highlightTitle === work.title }" v-for="(work, i) in workList" :key="i">
         <div class="entry-top">
           <div class="entry-title">{{ work.title || '您公司的名称' }}</div>
-          <div class="entry-right">{{ work.content.from_time || '您的入职时间' }} - {{ work.content.to_time || '您的离职时间' }} · {{ work.city || '您的工作城市' }}</div>
+          <div class="entry-right">{{ work.content.from_time || '您的入职时间' }} - {{ work.content.to_time || '您的离职时间' }} · {{ work.content.city || '您的工作城市' }}</div>
         </div>
         <div class="entry-actions" v-if="enableHover">
           <button class="action-btn" @click.stop="onEditClick('workExperience', work.title)">编辑</button>
