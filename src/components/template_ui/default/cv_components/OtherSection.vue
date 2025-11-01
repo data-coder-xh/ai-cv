@@ -12,10 +12,25 @@
       </span>
     </h2>
     
-    <div class="session-item">
+    <div 
+      class="session-item" 
+      v-if="!isEmpty()"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave" 
+      :class="{ 'is-hovered': isHovered }">
+      <!-- 灰色蒙层（hover时出现） -->
+      <div class="item-hover-overlay" v-if="isHovered && enableHover">
+        <!-- 按钮区域 -->
+        <div class="overlay-buttons">
+          <button class="overlay-button" @click.stop="onEditClick('otherModule', 'otherModule')">编辑</button>
+          <button class="overlay-button delete-button" @click.stop="onDeleteClick">删除</button>
+        </div>
+      </div>
       
       <!-- 技能部分 -->
-      <div v-if="otherModule.skills && typeof otherModule.skills === 'string' && otherModule.skills.trim()" class="item-content-item">
+      <div 
+        v-if="otherModule.skills && typeof otherModule.skills === 'string' && otherModule.skills.trim()" 
+        class="item-content-item">
         <div class="bullet-point-prefix">·</div>
         <div class="bullet-point-content">
           <span class="bullet-point">技能:</span>
@@ -24,7 +39,9 @@
       </div>
       
       <!-- 证书/执照部分 -->
-      <div v-if="otherModule.certificates && typeof otherModule.certificates === 'string' && otherModule.certificates.trim()" class="item-content-item">
+      <div 
+        v-if="otherModule.certificates && typeof otherModule.certificates === 'string' && otherModule.certificates.trim()" 
+        class="item-content-item">
         <div class="bullet-point-prefix">·</div>
         <div class="bullet-point-content">
           <span class="bullet-point">证书/执照:</span>
@@ -33,7 +50,9 @@
       </div>
       
       <!-- 语言部分 -->
-      <div v-if="otherModule.languages && typeof otherModule.languages === 'string' && otherModule.languages.trim()" class="item-content-item">
+      <div 
+        v-if="otherModule.languages && typeof otherModule.languages === 'string' && otherModule.languages.trim()" 
+        class="item-content-item">
         <div class="bullet-point-prefix">·</div>
         <div class="bullet-point-content">
           <span class="bullet-point">语言:</span>
@@ -42,7 +61,9 @@
       </div>
       
       <!-- 兴趣爱好部分 -->
-      <div v-if="otherModule.interests && typeof otherModule.interests === 'string' && otherModule.interests.trim()" class="item-content-item">
+      <div 
+        v-if="otherModule.interests && typeof otherModule.interests === 'string' && otherModule.interests.trim()" 
+        class="item-content-item">
         <div class="bullet-point-prefix">·</div>
         <div class="bullet-point-content">
           <span class="bullet-point">兴趣爱好:</span>
@@ -82,8 +103,8 @@ export default {
   },
   data() {
     return {
-      hoverIndex: null, // 记录当前鼠标悬停在哪个项目上
-      titleHover: false
+      titleHover: false,
+      isHovered: false
     }
   },
   methods: {
@@ -97,19 +118,23 @@ export default {
       this.$emit('edit-title', type, title);
     },
 
+    onDeleteClick() {
+      this.$emit('delete-title', 'otherModule', '');
+    },
+
     onAddTitleClick() {
       this.$emit('add-title', 'otherModule');
     },
 
-    handleMouseEnter(index) {
+    handleMouseEnter() {
       if (this.enableHover) {
-        this.hoverIndex = index;
+        this.isHovered = true;
       }
     },
 
     handleMouseLeave() {
       if (this.enableHover) {
-        this.hoverIndex = null;
+        this.isHovered = false;
       }
     }
   }
@@ -123,5 +148,9 @@ export default {
 
 .empty-message {
   opacity: 0.5;
+}
+
+.session-item {
+  position: relative;
 }
 </style>

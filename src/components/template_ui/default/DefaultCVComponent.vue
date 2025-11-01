@@ -255,6 +255,11 @@ export default {
             otherModule: this.otherModule,
             enableHover: !this.isPreview,
             color: this.color
+          },
+          listeners: {
+            'edit-title': this.handleEdit,
+            'delete-title': this.handleDelete,
+            'add-title': this.handleAddTitle
           }
         })
       }

@@ -3,6 +3,9 @@
         <div v-if="isNewTitle" class="edit-title-component-title">
             您正在添加一个新的<span class="title-highlight">{{ currentEditingTypeComputed }}</span>
         </div>
+        <div v-else-if="currentEditingType === 'otherModule'" class="edit-title-component-title">
+            您正在编辑的是 <span class="title-highlight">其他模块</span>
+        </div>
         <div v-else class="edit-title-component-title">
             您正在编辑的是 <span class="title-highlight"><ClickToEdit :modelValue="localContent.content.title" @update:modelValue="newValue => localContent.content.title = newValue" /></span>
         </div>
@@ -114,7 +117,20 @@
             </button>
         </div>
 
-
+        <!-- ================== Other Module ================== -->
+        <div v-if="currentEditingType === 'otherModule'">
+            <div class="session-edit-title">其他信息</div>
+            <div class="session-edit">
+                <AppleStyleInput id="other-skills" labelText="技能 (选填)" inputType="text" :required="false"
+                    v-model:modelValue="localContent.skills" />
+                <AppleStyleInput id="other-certificates" labelText="证书/执照 (选填)" inputType="text" :required="false"
+                    v-model:modelValue="localContent.certificates" />
+                <AppleStyleInput id="other-languages" labelText="语言 (选填)" inputType="text" :required="false"
+                    v-model:modelValue="localContent.languages" />
+                <AppleStyleInput id="other-interests" labelText="兴趣爱好 (选填)" inputType="text" :required="false"
+                    v-model:modelValue="localContent.interests" />
+            </div>
+        </div>
 
         <!-- ================== Footer 操作按钮 ================== -->
         <div class="edit-title-component-footer">
@@ -169,6 +185,8 @@ export default {
                 return '工作经历';
             } else if (this.currentEditingType === 'projectExperience') {
                 return '项目经历';
+            } else if (this.currentEditingType === 'otherModule') {
+                return '其他模块';
             }
             return ''
         }
@@ -239,18 +257,40 @@ export default {
                             content: []
                         }
                     }
+                } else if (this.currentEditingType === 'otherModule') {
+                    this.localContent = {
+                        skills: '',
+                        certificates: '',
+                        languages: '',
+                        interests: ''
+                    }
                 }
             }else {
                 // 深拷贝 metadataInstance 原始数据，赋值给 localContent
                 // 注意：ResumeForm.vue 中 setContentForType 时，把真正要存的结构都放在 content 里了
                 // 比如： { from_time: '', to_time: '', content: [] } 等等
                 // 因此这里需要根据 ResumeForm.vue 实际写入的结构来匹配
-                const originalContent = metadataInstance.contentForType(
-                    this.currentEditingType,
-                    this.currentEditingTitle
-                );
-                // 深拷贝
-                this.localContent = JSON.parse(JSON.stringify(originalContent));
+                if (this.currentEditingType === 'otherModule') {
+                    // otherModule的数据结构是 { skills: '', certificates: '', languages: '', interests: '' }
+                    const originalContent = metadataInstance.contentForType(
+                        this.currentEditingType,
+                        this.currentEditingTitle
+                    );
+                    // 深拷贝，如果没有数据则初始化为空对象
+                    this.localContent = originalContent ? JSON.parse(JSON.stringify(originalContent)) : {
+                        skills: '',
+                        certificates: '',
+                        languages: '',
+                        interests: ''
+                    };
+                } else {
+                    const originalContent = metadataInstance.contentForType(
+                        this.currentEditingType,
+                        this.currentEditingTitle
+                    );
+                    // 深拷贝
+                    this.localContent = JSON.parse(JSON.stringify(originalContent));
+                }
                 console.log(this.localContent);
             }
             // 初始化每个 bullet point 的 combined 字符串
@@ -278,66 +318,82 @@ export default {
         async submitChanges() {
             this.isSubmitting = true;
             try {
-                const finalContent = [];
-                for (const point of this.localContent.content.content) {
-                let value = point.combined || '';
+                if (this.currentEditingType === 'otherModule') {
+                    // 处理otherModule的提交
+                    const dataToSave = {
+                        skills: this.localContent.skills || '',
+                        certificates: this.localContent.certificates || '',
+                        languages: this.localContent.languages || '',
+                        interests: this.localContent.interests || ''
+                    };
+                    metadataInstance.setContentForType(
+                        this.currentEditingType,
+                        dataToSave,
+                        null
+                    );
+                } else {
+                    // 处理其他类型（education, workExperience, projectExperience）
+                    const finalContent = [];
+                    for (const point of this.localContent.content.content) {
+                    let value = point.combined || '';
 
-                // 如果包含中文冒号但没有英文冒号，先替换
-                if (!value.includes(':') && value.includes('：')) {
-                    value = value.replace(/：/g, ':');
-                }
-
-                let idx = value.indexOf(':');
-
-                // 若仍无冒号，调用 GPT 协助转换
-                if (idx === -1) {
-                    try {
-                        chatgptInstance.getMessagesForTitle(
-                            this.currentEditingType,
-                            this.localContent.content.title || ''
-                        );
-                        const gptValue = await chatgptInstance.getGptResponse(
-                            `请将以下句子转换为“主题: 内容”格式，只返回转换后的句子：${value}`
-                        );
-                        if (typeof gptValue === 'string') {
-                            value = gptValue.trim();
-                        }
-                    } catch (e) {
-                        console.error('fetchGptResponse error:', e);
-                    }
-                    // 再次检查冒号位置
+                    // 如果包含中文冒号但没有英文冒号，先替换
                     if (!value.includes(':') && value.includes('：')) {
                         value = value.replace(/：/g, ':');
                     }
-                    idx = value.indexOf(':');
-                }
 
-                if (idx !== -1) {
-                    finalContent.push({
-                        bullet_point: value.slice(0, idx).trim(),
-                        content: value.slice(idx + 1).trim(),
-                    });
-                } else {
-                    finalContent.push({
-                        bullet_point: value.trim(),
-                        content: '',
-                    });
+                    let idx = value.indexOf(':');
+
+                    // 若仍无冒号，调用 GPT 协助转换
+                    if (idx === -1) {
+                        try {
+                            chatgptInstance.getMessagesForTitle(
+                                this.currentEditingType,
+                                this.localContent.content.title || ''
+                            );
+                            const gptValue = await chatgptInstance.getGptResponse(
+                                `请将以下句子转换为"主题: 内容"格式，只返回转换后的句子：${value}`
+                            );
+                            if (typeof gptValue === 'string') {
+                                value = gptValue.trim();
+                            }
+                        } catch (e) {
+                            console.error('fetchGptResponse error:', e);
+                        }
+                        // 再次检查冒号位置
+                        if (!value.includes(':') && value.includes('：')) {
+                            value = value.replace(/：/g, ':');
+                        }
+                        idx = value.indexOf(':');
+                    }
+
+                    if (idx !== -1) {
+                        finalContent.push({
+                            bullet_point: value.slice(0, idx).trim(),
+                            content: value.slice(idx + 1).trim(),
+                        });
+                    } else {
+                        finalContent.push({
+                            bullet_point: value.trim(),
+                            content: '',
+                        });
+                    }
                 }
-            }
-                const dataToSave = {
-                    ...this.localContent.content,
-                    content: finalContent,
-                };
-                metadataInstance.updateTitle(
-                    this.currentEditingType,
-                    this.localContent.content.title,
-                    this.currentEditingTitle
-                )
-                metadataInstance.setContentForType(
-                    this.currentEditingType,
-                    dataToSave,
-                    this.localContent.content.title,
-                )
+                    const dataToSave = {
+                        ...this.localContent.content,
+                        content: finalContent,
+                    };
+                    metadataInstance.updateTitle(
+                        this.currentEditingType,
+                        this.localContent.content.title,
+                        this.currentEditingTitle
+                    )
+                    metadataInstance.setContentForType(
+                        this.currentEditingType,
+                        dataToSave,
+                        this.localContent.content.title,
+                    )
+                }
                 // 提交后可根据需要进行其他跳转或提示等操作
                 this.$emit("changes-submitted");
             } finally {

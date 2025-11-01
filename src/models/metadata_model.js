@@ -228,8 +228,7 @@ class MetadataModel {
         break;
       }
       case 'otherModule': {
-        // otherModule 是对象，不是数组，所以不需要删除特定标题的内容
-        // 如果需要重置，可以直接设置为空对象
+        // 重置整个otherModule
         this.data.otherModule = {};
         console.log(`重置其他模块数据`);
         break;

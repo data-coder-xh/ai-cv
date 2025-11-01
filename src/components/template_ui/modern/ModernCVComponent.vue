@@ -272,7 +272,12 @@
             component: OtherSectionModern,
             props: {
               otherModule: this.otherModule,
+              enableHover: !this.isPreview,
               color: this.color
+            },
+            listeners: {
+              'edit-title': this.handleEdit,
+              'delete-title': this.handleDelete
             }
           })
         }
