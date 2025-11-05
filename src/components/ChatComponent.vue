@@ -511,6 +511,7 @@ watch(inputValue, () => {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  z-index:1000;
 }
 
 /* 输入区域固定在底部 */
