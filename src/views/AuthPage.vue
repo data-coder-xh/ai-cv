@@ -2,33 +2,49 @@
     <div class="app">
         <div class="auth-page">
             <div class="auth-title">欢迎回来</div>
-            <div class="auth-tabs">
-                <div
-                    class="tab"
-                    :class="{ active: activeTab === 'wechat' }"
-                    @click="activeTab = 'wechat'"
-                >
-                    <i class="fab fa-weixin"></i>
-                    <span>微信登录</span>
+            <div class="auth-card">
+                <div class="auth-panel auth-panel-email">
+                    <div class="panel-header">
+                        <div class="panel-title">邮箱登录</div>
+                    </div>
+                    <div class="auth-input-area">
+                        <AppleStyleInput id="email" labelText="请输入邮箱地址" inputType="email" :required="true" v-model="email" />
+                        <div class="verification-row">
+                            <div class="verification-input">
+                                <AppleStyleInput id="captcha" labelText="请输入验证码" inputType="text" :required="true" v-model="captcha" />
+                            </div>
+                            <button
+                                class="send-code-button"
+                                @click="sendCaptcha"
+                                :disabled="isSending || sendCountdown > 0"
+                            >
+                                <span v-if="isSending">发送中...</span>
+                                <span v-else-if="sendCountdown > 0">{{ sendCountdown }}s</span>
+                                <span v-else>发送验证码</span>
+                            </button>
+                        </div>
+                        <div class="terms-text">
+                            注册登录即代表已阅读并同意我们的
+                            <router-link to="/service-agreement">用户协议</router-link>
+                            与
+                            <router-link to="/privacy-policy">隐私政策</router-link>
+                            ，未注册的邮箱将自动注册
+                        </div>
+                        <button class="continue-button" @click="loginWithCaptcha" :disabled="isLoading">
+                            <span v-if="!isLoading">登录</span>
+                            <span v-else>登录中...</span>
+                        </button>
+                    </div>
                 </div>
-                <div
-                    class="tab"
-                    :class="{ active: activeTab === 'email' }"
-                    @click="activeTab = 'email'"
-                >
-                    <i class="fas fa-envelope"></i>
-                    <span>邮箱登录</span>
+                <div class="auth-divider"></div>
+                <div class="auth-panel auth-panel-wechat">
+                    <div class="panel-header">
+                        <div class="panel-title">微信登录</div>
+                    </div>
+                    <div class="wechat-qrcode-wrapper">
+                        <div id="wx-qrcode" class="wechat-qrcode-container"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="auth-tab-content">
-                <div class="auth-input-area" v-show="activeTab === 'email'">
-                    <AppleStyleInput id="email" labelText="电子邮件地址" inputType="email" :required="true" v-model="email" />
-                    <button class="continue-button" @click="continueToSecondStep" :disabled="isLoading">
-                        <span v-if="!isLoading">继续</span>
-                        <span v-else>发送中...</span>
-                    </button>
-                </div>
-                <div id="wx-qrcode" class="wechat-qrcode-container" v-show="activeTab === 'wechat'"></div>
             </div>
             <div class="login-with-area">
                 <!--<div class="login-with-button" @click="signInWithGoogle">
@@ -48,11 +64,6 @@
                 </div> -->
             </div>
 
-            <div class="footer">
-                <router-link class="footer-text-left" to="/service-agreement">使用条款</router-link>
-                <div class="footer-text-divider">|</div>
-                <router-link class="footer-text-right" to="/privacy-policy">隐私政策</router-link>
-            </div>
         </div>
     </div>
 </template>
@@ -77,22 +88,29 @@ export default {
     mounted() {
         this.renderQr()
     },
+    beforeUnmount() {
+        this.clearSendTimer()
+    },
     data() {
         return {
             email: '',
             isLoading: false,
-            activeTab: 'wechat',
+            isSending: false,
+            captcha: '',
+            sendCountdown: 0,
+            sendTimer: null,
         }
     },
     methods: {
-        async continueToSecondStep() {
-            // 基本格式验证
+        async sendCaptcha() {
             if (!this.validateEmail(this.email)) {
-                this.toast.error('请输入有效的电子邮件地址');
+                this.toast.error('请输入有效的邮箱地址');
                 return;
             }
 
-            this.isLoading = true;
+            if (this.isSending || this.sendCountdown > 0) return;
+
+            this.isSending = true;
 
             try {
                 const response = await apiClient.post('/auth/captcha/send', {
@@ -100,11 +118,8 @@ export default {
                 });
 
                 if (response.data.code === 200) {
-                    this.$router.push({
-                        name: 'AuthSecondStep',
-                        params: { email: this.email },
-                        query: this.$route.query
-                    });
+                    this.toast.success('验证码已发送，请查收邮箱');
+                    this.startCountdown();
                 } else {
                     this.toast.error(`发送失败: ${response.data.message}`);
                 }
@@ -114,6 +129,52 @@ export default {
                 } else {
                     this.toast.error('网络错误，请检查连接');
                 }
+            } finally {
+                this.isSending = false;
+            }
+        },
+        startCountdown() {
+            this.sendCountdown = 60;
+            this.clearSendTimer();
+            this.sendTimer = setInterval(() => {
+                if (this.sendCountdown <= 1) {
+                    this.clearSendTimer();
+                    this.sendCountdown = 0;
+                } else {
+                    this.sendCountdown -= 1;
+                }
+            }, 1000);
+        },
+        clearSendTimer() {
+            if (this.sendTimer) {
+                clearInterval(this.sendTimer);
+                this.sendTimer = null;
+            }
+        },
+        async loginWithCaptcha() {
+            if (!this.validateEmail(this.email)) {
+                this.toast.error('请输入有效的邮箱地址');
+                return;
+            }
+
+            if (!this.captcha) {
+                this.toast.error('请输入验证码');
+                return;
+            }
+
+            this.isLoading = true;
+
+            try {
+                const { success, user, error } = await authService.login(this.email, this.captcha);
+
+                if (success) {
+                    this.toast.success(`欢迎回来，${user.contact || '用户'}`);
+                    this.$router.push('/');
+                } else {
+                    this.toast.error(error || '登录失败，请重试');
+                }
+            } catch (e) {
+                this.toast.error(e.message || '登录失败，请稍后重试');
             } finally {
                 this.isLoading = false;
             }
@@ -172,7 +233,7 @@ export default {
                 });
             }
         },
-        
+
 
     }
 }
@@ -184,99 +245,132 @@ export default {
     margin-left: 0;
     display: flex;
     justify-content: center;
-    height: 100vh;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f7f9ff 0%, #ffffff 100%);
 }
 
 .auth-page {
     position: relative;
-    height: calc(100vh - 60px);
-    margin-top: 60px;
-    width: 300px;
+    width: 780px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 60px 0;
+    gap: 24px;
 }
 
 .auth-title {
-    padding-top: 100px;
     font-size: 30px;
     font-weight: 600;
-    margin-bottom: 30px;
+    color: #1d2330;
 }
 
-.auth-tabs {
-    display: flex;
+.auth-card {
     width: 100%;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 20px;
+    display: flex;
+    gap: 32px;
+    padding: 40px 48px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 24px 80px rgba(15, 46, 145, 0.08);
 }
 
-.tab {
+.auth-panel {
     flex: 1;
-    text-align: center;
-    padding: 10px 0;
-    font-size: 14px;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.2s;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    gap: 6px;
 }
 
-.tab i {
-    font-size: 16px;
+.auth-panel-email {
+    max-width: 320px;
 }
 
-.tab span {
-    line-height: 1;
+.auth-panel-wechat {
+    align-items: center;
+    text-align: center;
 }
 
-.tab.active {
-    color: var(--color-primary);
+.panel-header {
+    margin-bottom: 24px;
+}
+
+.panel-title {
+    font-size: 22px;
     font-weight: 600;
-    border-bottom: 2px solid var(--color-primary);
-}
-
-.tab:hover {
-    background-color: rgba(0, 0, 0, 0.03);
-}
-
-.auth-tab-content {
-    width: 100%;
-    overflow: hidden;
-    height: 140px;
-}
-
-.wechat-qrcode-container ::v-deep(iframe) {
-    transform: scale(0.6);       /* 缩放到 40% */
-    transform-origin: top left;  /* 缩放基点 */
-    width: 300px;                /* 保持原始大小 */
-    height: 340px;
-}
-
-.wechat-qrcode-container {
-    position: relative;
-    top: -35px; /* 向上移动 20px */
-    margin: 0 auto;
-    width: 180px;   /* 容器限制 */
-    height: 204px;
+    color: #1d2330;
 }
 
 .auth-input-area {
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.verification-row {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+}
+
+.verification-input {
+    flex: 1;
+}
+
+.verification-input .form-group {
+    margin-bottom: 0;
+}
+
+.send-code-button {
+    min-width: 112px;
+    height: 50px;
+    border-radius: 12px;
+    border: none;
+    background: #edf0ff;
+    color: #5563c1;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 16px rgba(85, 99, 193, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.send-code-button:hover {
+    background: #dce2ff;
+}
+
+.send-code-button:disabled {
+    background: #eef1f8;
+    color: #98a2c8;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.terms-text {
+    font-size: 12px;
+    color: #98a2c8;
+    line-height: 1.8;
+}
+
+.terms-text a {
+    color: var(--color-primary);
+    margin: 0 4px;
 }
 
 .continue-button {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 24px;
     background-color: var(--color-primary);
     color: var(--color-secondary);
     border: none;
-    padding: 15px 0;
-    border-radius: 10px;
+    padding: 14px 0;
+    border-radius: 12px;
     font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgba(88, 119, 255, 0.25);
 }
 
 .continue-button:hover {
@@ -287,28 +381,51 @@ export default {
 .continue-button:disabled {
     background-color: var(--color-primary-disabled);
     cursor: not-allowed;
+    box-shadow: none;
 }
 
-.question-area {
+.auth-divider {
+    width: 1px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(111, 122, 154, 0.16), rgba(0, 0, 0, 0));
+}
+
+.wechat-qrcode-wrapper {
+    width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    margin-top: 20px;
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.7);
+    gap: 16px;
 }
 
-.question-link {
-    margin-left: 12px;
-    color: var(--color-primary);
-    cursor: pointer;
+.wechat-qrcode-container {
+    width: 220px;
+    height: 260px;
+    border-radius: 16px;
+    background: #f6f8ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 12px;
+}
+
+.wechat-qrcode-container ::v-deep(iframe) {
+    transform: scale(0.72);
+    transform-origin: center;
+    width: 300px;
+    height: 360px;
+    border: none;
+}
+
+.wechat-qrcode-container .impowerBox .title{
+    display: none;
 }
 
 .login-with-area {
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: 10px;
+    margin-top: 20px;
 }
 
 .login-with-button {
@@ -337,20 +454,43 @@ export default {
     margin-left: 10px;
 }
 
-.footer {
-    margin-top: 150px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.3);
-}
+@media (max-width: 900px) {
+    .auth-page {
+        width: 100%;
+        padding: 40px 16px;
+    }
 
-.footer-text-left {
-    margin-right: 10px;
-}
+    .auth-card {
+        flex-direction: column;
+        padding: 32px 24px;
+    }
 
-.footer-text-right {
-    margin-left: 10px;
+    .auth-divider {
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(111, 122, 154, 0.16), rgba(0, 0, 0, 0));
+    }
+
+    .auth-panel-wechat {
+        align-items: stretch;
+    }
+
+    .wechat-qrcode-wrapper {
+        width: 100%;
+    }
+
+    .wechat-qrcode-container {
+        align-self: center;
+    }
+
+    .verification-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .send-code-button {
+        width: 100%;
+        height: 50px;
+    }
 }
 </style>
